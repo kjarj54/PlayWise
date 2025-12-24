@@ -1,50 +1,137 @@
-# Welcome to your Expo app 👋
+# 🎮 PlayWise
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**PlayWise** is a comprehensive mobile application designed for video game enthusiasts, combining a rating and review platform with price comparison tools and social networking features.
 
-## Get started
+## 📱 Key Features
 
-1. Install dependencies
+### 🎯 Video Game Ratings
+- Rate and review your favorite video games
+- Discover opinions from other players
+- Explore detailed ratings by categories
+- Comment and discuss your favorite titles
+
+### 💰 Price Comparison
+- Compare video game prices across multiple stores in real-time
+- Find the best available deals
+- Save money on your video game purchases
+- View price history
+
+### 🔔 Discount Notifications
+- Receive instant alerts when a game on your wishlist goes on sale
+- Set up personalized notifications per game
+- Never miss a special promotion
+- Alerts for significant discounts on your favorite games
+
+### 👥 Social Network for Gamers
+- Add friends and expand your gaming community
+- Share your ratings and discoveries
+- See what your friends are playing
+- Interact with other players with similar tastes
+
+### 📋 Wishlist
+- Create and manage your desired game list
+- Receive notifications when prices drop
+- Organize your future purchases
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Expo CLI
+- Expo Go (for testing on physical device)
+
+### Installation
+
+1. Clone the repository
+
+   ```bash
+   git clone <repository-url>
+   cd playwise
+   ```
+
+2. Install dependencies
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Start the application
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Options to run the app:
+   - Scan the QR code with **Expo Go** (Android) or Camera (iOS)
+   - Press `a` to open in Android Emulator
+   - Press `i` to open in iOS Simulator
+   - Press `w` to open in web browser
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛠️ Technologies
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **React Native** with **Expo**
+- **TypeScript** for type safety
+- **NativeWind** for styling (Tailwind CSS)
+- **Expo Router** for file-based navigation
 
-## Get a fresh project
+## 📁 Project Structure
 
-When you're ready, run:
+```
+playwise/
+├── app/                 # Application routes and screens
+│   ├── (tabs)/         # Tab navigation
+│   ├── _layout.tsx     # Main layout
+│   └── global.css      # Global styles
+├── components/         # Reusable components
+├── constants/          # Constants and themes
+├── hooks/              # Custom React hooks
+└── assets/            # Images and static resources
+```
+
+## 📝 Available Scripts
 
 ```bash
+# Start development server
+npm start
+
+# Start on Android
+npm run android
+
+# Start on iOS
+npm run ios
+
+# Start on web
+npm run web
+
+# Run linter
+npm run lint
+
+# Reset project (clean example code)
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🔗 Backend
 
-## Learn more
+This project works together with the **PlayWise-Backend**, which provides:
+- RESTful API for user management
+- Authentication and authorization system
+- Ratings and reviews management
+- Friends and social network system
+- Price comparison across stores
+- Push notifications for discounts
+- Wishlist management
 
-To learn more about developing your project with Expo, look at the following resources:
+## 👥 Developers
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **[Kevin Fallas](https://github.com/kevtico20)** - Full Stack Developer
+- **[Kevin Arauz](https://github.com/kjarj54)** - Full Stack Developer
 
-## Join the community
+## 🤝 Contributing
 
-Join our community of developers creating universal apps.
+Contributions are welcome. Please open an issue first to discuss the changes you would like to make.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📄 License
+
+This project is private and confidential.
