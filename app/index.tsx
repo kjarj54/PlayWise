@@ -1,11 +1,17 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, View } from 'react-native';
 import GradientBackground from '../components/GradientBackground';
+import AnimatedGradientTitle from '../components/Intro/AnimatedGradientTitle';
+
+
 
 export default function Index() {
-  const router = useRouter();
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [titleWidth, setTitleWidth] = useState<number>(0);
+  const [lettersStart, setLettersStart] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Animación de fade in
@@ -13,27 +19,37 @@ export default function Index() {
       toValue: 1,
       duration: 1000,
       useNativeDriver: true,
-    }).start();
+    }).start(() => {
+      setLettersStart(true);
+    });
+  }, [fadeAnim]);
 
-    // Navegar al login después de 3 segundos
+  useEffect(() => {
+    if (!lettersStart) return;
     const timer = setTimeout(() => {
       router.replace('/login');
-    }, 3000);
-
+    }, 2000);
     return () => clearTimeout(timer);
-  }, [fadeAnim, router]);
+  }, [lettersStart, router]);
 
   return (
     <GradientBackground className="items-center justify-center">
       <Animated.View 
         style={{ opacity: fadeAnim }}
-        className="items-center"
+        className="flex-1 items-center justify-center"
       >
-        <Text className="text-6xl font-bold tracking-wider">
-          <Text style={{ color: '#6B0F1A' }}>PLAY</Text>
-          <Text style={{ color: '#DB0000' }}>WISE</Text>
-        </Text>
-        <View style={{ backgroundColor: '#DB0000' }} className="h-1 w-48 mt-2" />
+        <View style={{ alignItems: 'center' }}>
+          {/* Gradient-masked title */}
+          <AnimatedGradientTitle
+            start={lettersStart}
+            titleWidth={titleWidth}
+            setTitleWidth={setTitleWidth}
+            fontSize={48}
+            charDelay={50}
+          />
+
+          <View style={{ backgroundColor: '#DB0000', height: 4, width: titleWidth || undefined, alignSelf: 'center', marginTop: 8, borderRadius: 2 }} />
+        </View>
       </Animated.View>
     </GradientBackground>
   );
