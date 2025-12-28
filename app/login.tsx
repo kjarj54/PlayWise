@@ -123,7 +123,6 @@ export default function LoginScreen() {
               {/* Inputs de formulario */}
               <View className="mb-6 mt-4">
                 <Input
-                  label={t("auth.userOrEmail")}
                   placeholder={t("auth.userOrEmail")}
                   value={email}
                   onChangeText={(text) => {
@@ -137,7 +136,6 @@ export default function LoginScreen() {
                 />
 
                 <PasswordInput
-                  label={t("auth.password")}
                   placeholder={t("auth.password")}
                   value={password}
                   onChangeText={(text) => {
