@@ -19,7 +19,8 @@
     "home": "Home",
     "explore": "Explore",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "main": "Main"
   },
   "auth": {
     "login": "Login",

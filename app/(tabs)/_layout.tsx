@@ -10,6 +10,7 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
+          tabBarStyle: { display: 'none' },
         }}>
         <Tabs.Screen
           name="index"
@@ -21,6 +22,12 @@ export default function TabLayout() {
           name="explore"
           options={{
             title: t('tabs.explore'),
+          }}
+        />
+        <Tabs.Screen
+          name="main"
+          options={{
+            title: t('tabs.main'),
           }}
         />
       </Tabs>

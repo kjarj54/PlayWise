@@ -23,8 +23,6 @@ import AnimatedHintInput from "../components/common/AnimatedHintInput";
 import AnimatedHintPasswordInput from "../components/common/AnimatedHintPasswordInput";
 
 import { useTranslation } from "../hooks/use-translation";
-import authService from "../services/authService";
-import storageService from "../services/storageService";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -57,21 +55,23 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
-    if (!validateForm()) return;
+    // Validaciones comentadas para pruebas
+    // if (!validateForm()) return;
 
     setLoading(true);
     Keyboard.dismiss();
 
     try {
-      const response = await authService.login(email.trim(), password);
+      // Comentado temporalmente para pruebas - acceso directo
+      // const response = await authService.login(email.trim(), password);
 
-      await storageService.saveTokens(
-        response.access_token,
-        response.refresh_token
-      );
+      // await storageService.saveTokens(
+      //   response.access_token,
+      //   response.refresh_token
+      // );
 
-      Alert.alert("Éxito", t("auth.loginSuccess"));
-      router.replace("/(tabs)");
+      // Alert.alert("Éxito", t("auth.loginSuccess"));
+      router.replace("/(tabs)/main");
     } catch (error: any) {
       Alert.alert("Error", error.message || t("auth.loginError"));
     } finally {

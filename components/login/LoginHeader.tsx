@@ -138,9 +138,7 @@ export default function LoginHeader() {
 
   // Debug básico de montaje/desmontaje
   useEffect(() => {
-    console.log('[LoginHeader] montaje. índiceActual', currentIndexRef.current, 'índiceSiguiente', nextIndexRef.current);
     return () => {
-      console.log('[LoginHeader] desmontaje');
     };
   }, []);
 
@@ -155,14 +153,11 @@ export default function LoginHeader() {
 
       // Precompute next index (solo ref, sin setState para evitar re-render)
       const preNext = (currentIndexRef.current + 1) % IMAGES.length;
-      console.log('[LoginHeader] ciclo de animación. índiceActualRef', currentIndexRef.current, 'índiceSiguienteRef', nextIndexRef.current, 'preNext', preNext);
       if (nextIndexRef.current !== preNext) {
         nextIndexRef.current = preNext;
-        console.log('[LoginHeader] estableciendo índiceSiguiente a preNext', preNext, '->', IMAGE_LABELS[preNext]);
       }
 
       // Crossfade: actual 1->0, siguiente 0->1 with easing
-      console.log('[LoginHeader] iniciando crossfade de', IMAGE_LABELS[currentIndexRef.current], 'a', IMAGE_LABELS[nextIndexRef.current]);
 
       // listeners temporales de opacidad para este ciclo
       const curIdx = currentIndexRef.current;
@@ -171,14 +166,12 @@ export default function LoginHeader() {
         const now = Date.now();
         if (now - lastCurrentOpacityLogRef.current > 120 || value === 0 || value === 1) {
           lastCurrentOpacityLogRef.current = now;
-          console.log('[LoginHeader] opacidadActual', value);
         }
       });
       const id2 = imageOpacities[nxtIdx].addListener(({ value }) => {
         const now = Date.now();
         if (now - lastNextOpacityLogRef.current > 120 || value === 0 || value === 1) {
           lastNextOpacityLogRef.current = now;
-          console.log('[LoginHeader] opacidadSiguiente', value);
         }
       });
 
@@ -204,19 +197,16 @@ export default function LoginHeader() {
 
         // Promote next to current (solo refs, sin state updates para evitar re-render)
         const newCurrent = nextIndexRef.current;
-        console.log('[LoginHeader] crossfade completo. nuevoActual', newCurrent, '->', IMAGE_LABELS[newCurrent]);
         currentIndexRef.current = newCurrent;
 
         // Prepare upcoming next
         const newNext = (newCurrent + 1) % IMAGES.length;
-        console.log('[LoginHeader] preparar próximo siguiente', newNext, '->', IMAGE_LABELS[newNext]);
         nextIndexRef.current = newNext;
 
         // Asegurar que la próxima imagen esté oculta (debe estar ya en 0)
         imageOpacities[newNext].setValue(0);
 
         // Pause before next cycle
-        console.log('[LoginHeader] programar próximo ciclo en 3500ms');
         timeoutId = setTimeout(animate, 3500);
       });
     };
@@ -295,7 +285,6 @@ export default function LoginHeader() {
           onLayout={(e) => {
             const w = e.nativeEvent.layout.width;
             const h = e.nativeEvent.layout.height;
-            console.log('[LoginHeader] establecer layout', w, h);
             setLayout({ width: w, height: h });
           }}
         >

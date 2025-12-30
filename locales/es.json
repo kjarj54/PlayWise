@@ -19,7 +19,8 @@
     "home": "Inicio",
     "explore": "Explorar",
     "profile": "Perfil",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "main": "Principal"
   },
   "auth": {
     "login": "Iniciar sesión",
