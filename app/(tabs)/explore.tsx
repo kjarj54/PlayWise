@@ -1,14 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Heart } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Image, PanResponder, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, PanResponder, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import GradientBackground from '../../components/GradientBackground';
 import CommentSection from '../../components/gameDetails/CommentSection';
 import GameVariantAccordion from '../../components/gameDetails/GameVariantAccordion';
 import MainHeader from '../../components/main/MainHeader';
 import { CheapSharkDeal, searchDealsBySteamAppID, searchDealsByTitle, searchDealsByTitleExact } from '../../services/cheapSharkService';
 import { getGameDetails, RawgGameFull } from '../../services/rawgService';
-import wishlistService from '../../services/wishlistService';
 
 // Mock data para comentarios
 const MOCK_COMMENTS = [
@@ -117,17 +116,6 @@ export default function ExploreScreen() {
   useEffect(() => {
     loadGameData();
   }, [gameId, gameTitle]);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const exists = await wishlistService.isWishlistedByApiId(String(gameId));
-        if (mounted) setIsWishlisted(!!exists);
-      } catch {}
-    })();
-    return () => { mounted = false; };
-  }, [gameId]);
 
   const loadGameData = async () => {
     try {
@@ -288,37 +276,13 @@ export default function ExploreScreen() {
   };
 
   const showDescriptionButton = description.length > 200;
-  const [savingWishlist, setSavingWishlist] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const primaryGenre = genres[0] || gameGenre;
 
-  const handleWishlistPress = async () => {
-    if (savingWishlist) return;
-    try {
-      setSavingWishlist(true);
-      setIsWishlisted(true);
-      const payload = {
-        name: gameTitle,
-        genre: primaryGenre || null,
-        api_id: String(gameId),
-        description: description || null,
-        cover_image: gameImage || null,
-        release_date: gameDetails?.released || null,
-        platforms: Array.isArray(gameDetails?.platforms)
-          ? JSON.stringify(gameDetails?.platforms)
-          : null,
-        developer: null,
-        publisher: null,
-      };
-      await wishlistService.addByApiId(payload, null);
-      Alert.alert('Wishlist', 'Juego agregado a tu lista de deseos');
-    } catch (e: any) {
-      setIsWishlisted(false);
-      Alert.alert('Error', e?.message || 'No se pudo agregar a wishlist');
-    } finally {
-      setSavingWishlist(false);
-    }
+  const handleWishlistPress = () => {
+    // Solo toggling visual por ahora; backend se integra después
+    setIsWishlisted((prev) => !prev);
   };
 
   return (

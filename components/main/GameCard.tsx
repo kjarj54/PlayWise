@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import { Heart } from 'lucide-react-native';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import wishlistService from '../../services/wishlistService';
 
 interface GameCardProps {
   id: string;
@@ -15,21 +14,7 @@ interface GameCardProps {
 }
 
 export default function GameCard({ id, image, title, genre, rating, onPress }: GameCardProps) {
-  const [saving, setSaving] = React.useState(false);
   const [wishlisted, setWishlisted] = React.useState(false);
-
-  React.useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const exists = await wishlistService.isWishlistedByApiId(String(id));
-        if (mounted) setWishlisted(!!exists);
-      } catch {}
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
 
   const handlePress = () => {
     if (onPress) {
@@ -49,28 +34,9 @@ export default function GameCard({ id, image, title, genre, rating, onPress }: G
     }
   };
 
-  const handleWishlist = async () => {
-    if (saving) return;
-    try {
-      setSaving(true);
-      const payload = {
-        name: title,
-        genre,
-        api_id: String(id),
-        cover_image: image,
-        description: null,
-        release_date: null,
-        platforms: null,
-        developer: null,
-        publisher: null,
-      };
-      await wishlistService.addByApiId(payload, null);
-      setWishlisted(true);
-    } catch (e) {
-      // silent; could add toast
-    } finally {
-      setSaving(false);
-    }
+  const handleWishlist = () => {
+    // Toggle heart locally; backend integration will be added later
+    setWishlisted((prev) => !prev);
   };
 
   return (
