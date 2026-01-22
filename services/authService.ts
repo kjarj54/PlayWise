@@ -156,8 +156,8 @@ export function extractUserFromToken(token: string): Partial<User> | null {
     (typeof subject === "string" && subject.includes("@")
       ? subject.split("@")[0]
       : typeof subject === "string"
-      ? subject
-      : null);
+        ? subject
+        : null);
 
   const email =
     (typeof candidateEmail === "string" && candidateEmail.trim()) ||
@@ -209,7 +209,7 @@ class AuthService {
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
       const deviceId = await this.getOrCreateDeviceId();
-      
+
       // FastAPI OAuth2 espera el formato form-data
       const formData = new URLSearchParams();
       formData.append("username", email); // OAuth2 usa "username" pero enviamos email
@@ -240,7 +240,7 @@ class AuthService {
    */
   async verifyOTP(
     otpCode: string,
-    rememberDevice: boolean = false
+    rememberDevice: boolean = false,
   ): Promise<LoginResponse> {
     try {
       if (!this.pendingLoginEmail) {
@@ -278,7 +278,7 @@ class AuthService {
   async resendOTP(email?: string): Promise<{ message: string }> {
     try {
       const targetEmail = email || this.pendingLoginEmail;
-      
+
       if (!targetEmail) {
         throw { status: 400, message: "No email provided." };
       }
@@ -287,7 +287,7 @@ class AuthService {
         `/auth/resend-otp?email=${encodeURIComponent(targetEmail)}`,
         {
           method: "POST",
-        }
+        },
       );
 
       return response;
@@ -305,7 +305,7 @@ class AuthService {
         `/auth/verify-email?token=${encodeURIComponent(token)}`,
         {
           method: "POST",
-        }
+        },
       );
 
       return response;
@@ -323,7 +323,7 @@ class AuthService {
         `/auth/resend-activation?email=${encodeURIComponent(email)}`,
         {
           method: "POST",
-        }
+        },
       );
 
       return response;
@@ -373,7 +373,7 @@ class AuthService {
    */
   async removeTrustedDevice(
     accessToken: string,
-    deviceId: string
+    deviceId: string,
   ): Promise<{ message: string }> {
     try {
       const response = await fetchAPI<{ message: string }>(
@@ -383,7 +383,7 @@ class AuthService {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       return response;
@@ -396,7 +396,7 @@ class AuthService {
    * Eliminar todos los dispositivos de confianza (requiere autenticación)
    */
   async removeAllTrustedDevices(
-    accessToken: string
+    accessToken: string,
   ): Promise<{ message: string; count: number }> {
     try {
       const response = await fetchAPI<{ message: string; count: number }>(
@@ -406,11 +406,30 @@ class AuthService {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       return response;
     } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Renovar access token usando refresh token
+   */
+  async refreshAccessToken(refreshToken: string): Promise<LoginResponse> {
+    try {
+      console.log("🔄 Renovando access token...");
+      const response = await fetchAPI<LoginResponse>("/auth/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      console.log("✅ Token renovado exitosamente");
+      return response;
+    } catch (error) {
+      console.error("❌ Error renovando token:", error);
       throw this.handleError(error);
     }
   }

@@ -3,6 +3,8 @@
  * Configuración central para todas las peticiones HTTP al backend
  */
 
+import storageService from "./storageService";
+
 // Obtener URL de la API desde variables de entorno
 const API_BASE_URL = __DEV__
   ? process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/api"
@@ -114,19 +116,69 @@ export async function fetchAPI<T>(
 
 /**
  * Función helper para peticiones con autenticación
+ * Intenta renovar el token automáticamente si recibe 401
  */
 export async function fetchAuthAPI<T>(
   endpoint: string,
   token: string,
   options: RequestInit = {},
+  silentErrors: number[] = [],
 ): Promise<T> {
-  return fetchAPI<T>(endpoint, {
-    ...options,
-    headers: {
-      ...options.headers,
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    return await fetchAPI<T>(
+      endpoint,
+      {
+        ...options,
+        headers: {
+          ...options.headers,
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      silentErrors,
+    );
+  } catch (error: any) {
+    // Si es 401, intentar renovar token
+    if (error.status === 401 && !silentErrors.includes(401)) {
+      console.log("🔄 Token expirado, intentando renovar...");
+
+      try {
+        const refreshToken = await storageService.getRefreshToken();
+        if (refreshToken) {
+          // Importar authService dinámicamente para evitar circular dependency
+          const authService = (await import("./authService")).default;
+          const response = await authService.refreshAccessToken(refreshToken);
+
+          if (response.access_token && response.refresh_token) {
+            // Guardar nuevos tokens
+            await storageService.saveTokens(
+              response.access_token,
+              response.refresh_token,
+            );
+
+            // Reintentar la petición original con el nuevo token
+            console.log("✅ Token renovado, reintentando petición...");
+            return await fetchAPI<T>(
+              endpoint,
+              {
+                ...options,
+                headers: {
+                  ...options.headers,
+                  Authorization: `Bearer ${response.access_token}`,
+                },
+              },
+              silentErrors,
+            );
+          }
+        }
+      } catch (refreshError) {
+        console.error("❌ Error renovando token:", refreshError);
+        // Si falla la renovación, lanzar el error original
+      }
+    }
+
+    // Si no es 401 o falló la renovación, lanzar el error
+    throw error;
+  }
 }
 
 export default API_CONFIG;

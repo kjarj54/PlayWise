@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useCurrentUser } from '../../hooks/use-current-user';
-import ProfileMenu from './ProfileMenu';
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCurrentUser } from "../../hooks/use-current-user";
+import ProfileMenu from "./ProfileMenu";
 
 interface MainHeaderProps {
   onSearchPress?: () => void;
@@ -15,14 +15,18 @@ export default function MainHeader({ onSearchPress }: MainHeaderProps) {
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.logo}>Logo</Text>
-        
+        <Image
+          source={require("../../assets/images/logo.png")}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
+
         <View style={styles.rightSection}>
           <TouchableOpacity onPress={onSearchPress} style={styles.iconButton}>
             <Ionicons name="search" size={23} color="#FFFFFF" />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             onPress={() => setMenuVisible(true)}
             style={styles.profileButton}
           >
@@ -33,7 +37,7 @@ export default function MainHeader({ onSearchPress }: MainHeaderProps) {
         </View>
       </View>
 
-      <ProfileMenu 
+      <ProfileMenu
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
       />
@@ -43,34 +47,33 @@ export default function MainHeader({ onSearchPress }: MainHeaderProps) {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    paddingTop: 40, // Status bar padding
-    backgroundColor: 'transparent',
+    paddingVertical: 8,
+    paddingTop: 30, // Status bar padding
+    backgroundColor: "transparent",
   },
-  logo: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '600',
+  logoImage: {
+    width: 180,
+    height: 54,
   },
   rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
   },
   iconButton: {
     width: 23,
     height: 23,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileButton: {
     marginLeft: 5,
@@ -79,13 +82,13 @@ const styles = StyleSheet.create({
     width: 25,
     height: 23,
     borderRadius: 12.5,
-    backgroundColor: '#4A4A4A',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#4A4A4A",
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarText: {
-    color: '#D9D9D9',
+    color: "#D9D9D9",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

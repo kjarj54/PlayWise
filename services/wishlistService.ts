@@ -178,17 +178,38 @@ class WishlistService {
 
   /**
    * Get current user's wishlist entries (with game info if backend supports it).
+   * Retorna array vacío silenciosamente si el usuario no está autenticado.
    */
   async list(): Promise<any[]> {
     const token = await storageService.getAccessToken();
-    if (!token) throw new Error("Not authenticated");
+    console.log(
+      "🔑 Token para wishlist:",
+      token ? `${token.substring(0, 20)}...` : "NO TOKEN",
+    );
+
+    if (!token) {
+      console.warn("⚠️ No hay token - usuario no autenticado");
+      return [];
+    }
+
     try {
-      const res = await fetchAuthAPI<any[]>(`/wishlists`, token, {
-        method: "GET",
-      });
+      const res = await fetchAuthAPI<any[]>(
+        `/wishlists/`, // IMPORTANTE: usar trailing slash para evitar 307 redirect
+        token,
+        {
+          method: "GET",
+        },
+        [401], // Suprimir logs de error 401 (no autenticado)
+      );
+      console.log(`✅ Wishlist obtenida del servidor:`, res);
       return Array.isArray(res) ? res : [];
     } catch (err: any) {
-      console.error("Error listando wishlist:", err);
+      // Si es error 401, simplemente retornar vacío (usuario no autenticado)
+      if (err?.status === 401) {
+        console.warn("⚠️ Error 401: Token inválido o expirado");
+        return [];
+      }
+      console.warn("⚠️ Error cargando wishlist:", err?.message || err);
       return [];
     }
   }
@@ -216,6 +237,28 @@ class WishlistService {
     } catch (err: any) {
       if (err?.status === 404) return false;
       return false;
+    }
+  }
+
+  /**
+   * Remove from wishlist by wishlist_id
+   * Usa directamente el ID del item en la tabla wishlist
+   */
+  async removeByWishlistId(wishlistId: number): Promise<void> {
+    console.log("🗑️ Eliminando de wishlist - wishlist_id:", wishlistId);
+    const token = await storageService.getAccessToken();
+    if (!token) throw new Error("Not authenticated - Token not found");
+
+    try {
+      // Usar directamente el wishlist_id para eliminar
+      await fetchAuthAPI<void>(`/wishlists/${wishlistId}`, token, {
+        method: "DELETE",
+      });
+
+      console.log("✅ Eliminado de wishlist exitosamente");
+    } catch (err: any) {
+      console.error("❌ Error eliminando de wishlist:", err);
+      throw new Error(err?.message || "Error al eliminar de wishlist");
     }
   }
 }
