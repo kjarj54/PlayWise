@@ -1,8 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Heart } from "lucide-react-native";
-import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface GameCardProps {
   id: string;
@@ -11,7 +11,7 @@ interface GameCardProps {
   genre: string;
   rating?: number;
   onPress?: () => void;
-  isInWishlist?: boolean; // Solo para mostrar el estado visual del corazón
+  isInWishlist?: boolean; // Solo visual
 }
 
 export default function GameCard({
@@ -25,8 +25,8 @@ export default function GameCard({
 }: GameCardProps) {
   const [wishlisted, setWishlisted] = useState(isInWishlist);
 
-  // Actualizar estado cuando cambia isInWishlist (desde el padre)
-  React.useEffect(() => {
+  // Sync con el padre
+  useEffect(() => {
     setWishlisted(isInWishlist);
   }, [isInWishlist]);
 
@@ -34,7 +34,6 @@ export default function GameCard({
     if (onPress) {
       onPress();
     } else {
-      // Navegar a explore con los datos del juego
       router.push({
         pathname: "/(tabs)/explore",
         params: {
@@ -50,80 +49,42 @@ export default function GameCard({
 
   return (
     <TouchableOpacity
-      style={styles.container}
       onPress={handlePress}
       activeOpacity={0.8}
+      className="w-[120] h-[150] rounded-[8] overflow-hidden mr-[10]"
     >
-      <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
+      <Image
+        source={{ uri: image }}
+        className="w-full h-full"
+        resizeMode="cover"
+      />
 
-      {/* Corazón solo visual - indica si está en wishlist */}
-      <View style={styles.heart}>
+      {/* Heart (solo visual) */}
+      <View className="absolute top-[6] right-[6] w-[24] h-[24] rounded-full bg-black/35 items-center justify-center z-10">
         <Heart
           size={16}
           color={wishlisted ? "#FF4D6D" : "#FFFFFF"}
           fill={wishlisted ? "#FF4D6D" : "none"}
         />
       </View>
+
+      {/* Gradient overlay */}
       <LinearGradient
         colors={["transparent", "rgba(0, 0, 0, 0.8)"]}
-        style={styles.gradient}
+        className="absolute bottom-0 left-0 right-0 h-[60%] justify-end"
       >
-        <View style={styles.info}>
-          <Text style={styles.title} numberOfLines={2}>
+        <View className="p-2">
+          <Text
+            className="text-white text-[10px] font-semibold mb-[2]"
+            numberOfLines={2}
+          >
             {title}
           </Text>
-          <Text style={styles.genre}>{genre}</Text>
+          <Text className="text-white text-[10px] font-semibold opacity-80">
+            {genre}
+          </Text>
         </View>
       </LinearGradient>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: 120,
-    height: 150,
-    borderRadius: 8,
-    overflow: "hidden",
-    marginRight: 10,
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  heart: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 2,
-  },
-  gradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "60%",
-    justifyContent: "flex-end",
-  },
-  info: {
-    padding: 8,
-  },
-  title: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  genre: {
-    color: "#FFFFFF",
-    fontSize: 10,
-    fontWeight: "600",
-    opacity: 0.8,
-  },
-});

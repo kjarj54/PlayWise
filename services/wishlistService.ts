@@ -244,7 +244,8 @@ class WishlistService {
    * Remove from wishlist by wishlist_id
    * Usa directamente el ID del item en la tabla wishlist
    */
-  async removeByWishlistId(wishlistId: number): Promise<void> {
+  async removeByWishlistId(wishlistId: string): Promise<void> {
+    // Backend nos devuelve el id como string para evitar pérdida de precisión
     console.log("🗑️ Eliminando de wishlist - wishlist_id:", wishlistId);
     const token = await storageService.getAccessToken();
     if (!token) throw new Error("Not authenticated - Token not found");

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, Text } from 'react-native';
+import React, { useEffect, useRef } from "react";
+import { Animated, Text, View } from "react-native";
 
 type Props = React.PropsWithChildren<{
   loading: boolean;
@@ -11,9 +11,17 @@ export default function ScreenSuspense({ loading, children }: Props) {
   useEffect(() => {
     const anim = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0, duration: 700, useNativeDriver: true }),
-      ])
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
     );
     anim.start();
     return () => anim.stop();
@@ -21,60 +29,53 @@ export default function ScreenSuspense({ loading, children }: Props) {
 
   if (!loading) return children as any;
 
-  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] });
+  const opacity = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.6, 1],
+  });
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.heroSkeleton, { opacity }]} />
-      <View style={styles.sections}>
-        <View style={styles.sectionRow}>
-          <Animated.View style={[styles.cardSkeleton, { opacity }]} />
-          <Animated.View style={[styles.cardSkeleton, { opacity }]} />
-          <Animated.View style={[styles.cardSkeleton, { opacity }]} />
+    <View className="w-full items-center py-5 bg-transparent">
+      <Animated.View
+        className="w-[94%] h-[320] rounded-[12] bg-[#222] mb-4"
+        style={{ opacity }}
+      />
+
+      <View className="w-full px-3">
+        <View className="flex-row justify-between mb-3">
+          <Animated.View
+            className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]"
+            style={{ opacity }}
+          />
+          <Animated.View
+            className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]"
+            style={{ opacity }}
+          />
+          <Animated.View
+            className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]"
+            style={{ opacity }}
+          />
         </View>
-        <View style={styles.sectionRow}>
-          <Animated.View style={[styles.cardSkeleton, { opacity }]} />
-          <Animated.View style={[styles.cardSkeleton, { opacity }]} />
-          <Animated.View style={[styles.cardSkeleton, { opacity }]} />
+
+        <View className="flex-row justify-between mb-3">
+          <Animated.View
+            className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]"
+            style={{ opacity }}
+          />
+          <Animated.View
+            className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]"
+            style={{ opacity }}
+          />
+          <Animated.View
+            className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]"
+            style={{ opacity }}
+          />
         </View>
       </View>
-      <Text style={styles.loadingText}>Cargando contenido...</Text>
+
+      <Text className="text-[#ddd] mt-3 text-[12px]">
+        Cargando contenido...
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    alignItems: 'center',
-    paddingVertical: 20,
-    backgroundColor: 'transparent',
-  },
-  heroSkeleton: {
-    width: '94%',
-    height: 320,
-    borderRadius: 12,
-    backgroundColor: '#222',
-    marginBottom: 16,
-  },
-  sections: {
-    width: '100%',
-    paddingHorizontal: 12,
-  },
-  sectionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  cardSkeleton: {
-    width: '32%',
-    height: 120,
-    borderRadius: 8,
-    backgroundColor: '#2a2a2a',
-  },
-  loadingText: {
-    color: '#ddd',
-    marginTop: 12,
-    fontSize: 12,
-  },
-});

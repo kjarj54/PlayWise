@@ -1,14 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
-    Image,
-    Keyboard,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+  Image,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface Comment {
   id: string;
@@ -25,44 +24,61 @@ interface CommentSectionProps {
   onLikeComment?: (commentId: string) => void;
 }
 
-export default function CommentSection({ comments, onAddComment, onLikeComment }: CommentSectionProps) {
-  const [newComment, setNewComment] = useState('');
+export default function CommentSection({
+  comments,
+  onAddComment,
+  onLikeComment,
+}: CommentSectionProps) {
+  const [newComment, setNewComment] = useState("");
 
   const handleSubmit = () => {
     if (newComment.trim() && onAddComment) {
       onAddComment(newComment.trim());
-      setNewComment('');
+      setNewComment("");
       Keyboard.dismiss();
     }
   };
 
   const renderComment = (item: Comment) => (
-    <View key={item.id} style={styles.commentItem}>
-      <View style={styles.avatarContainer}>
+    <View key={item.id} className="flex-row mb-5">
+      <View className="mr-3">
         {item.avatar ? (
-          <Image source={{ uri: item.avatar }} style={styles.avatar} />
+          <Image
+            source={{ uri: item.avatar }}
+            className="w-[36] h-[36] rounded-full"
+          />
         ) : (
-          <View style={[styles.avatar, styles.avatarPlaceholder]}>
-            <Text style={styles.avatarText}>{item.userName.charAt(0).toUpperCase()}</Text>
+          <View className="w-[36] h-[36] rounded-full bg-[#4A90E2] items-center justify-center">
+            <Text className="text-white text-[16px] font-semibold">
+              {item.userName.charAt(0).toUpperCase()}
+            </Text>
           </View>
         )}
       </View>
-      <View style={styles.commentContent}>
-        <View style={styles.commentHeader}>
-          <Text style={styles.userName}>{item.userName}</Text>
-          <Text style={styles.timeAgo}>{item.timeAgo}</Text>
+
+      <View className="flex-1">
+        <View className="flex-row items-center mb-1">
+          <Text className="text-white text-[14px] font-semibold mr-2">
+            {item.userName}
+          </Text>
+          <Text className="text-[#999999] text-[12px]">{item.timeAgo}</Text>
         </View>
-        <Text style={styles.commentText}>{item.text}</Text>
-        <View style={styles.commentActions}>
+
+        <Text className="text-white text-[13px] leading-[18] mb-2">
+          {item.text}
+        </Text>
+
+        <View className="flex-row items-center">
           <TouchableOpacity
-            style={styles.likeButton}
+            className="flex-row items-center"
             onPress={() => onLikeComment?.(item.id)}
           >
             <Ionicons name="thumbs-up-outline" size={14} color="#FFFFFF" />
-            <Text style={styles.likeCount}>{item.likes}</Text>
+            <Text className="text-white text-[12px] ml-1">{item.likes}</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.replyButton}>Reply</Text>
+
+          <TouchableOpacity className="ml-4">
+            <Text className="text-[#999999] text-[12px]">Reply</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -70,152 +86,40 @@ export default function CommentSection({ comments, onAddComment, onLikeComment }
   );
 
   return (
-    <View style={styles.container}>
+    <View className="mt-5 px-5">
       {/* Input Box */}
-      <View style={styles.inputContainer}>
+      <View className="bg-white rounded-[8] p-3 mb-4">
         <TextInput
-          style={styles.input}
+          className="text-[14px] text-[#333333] min-h-[40] mb-2"
           placeholder="Add a Comment"
           placeholderTextColor="#999999"
           value={newComment}
           onChangeText={setNewComment}
           multiline
         />
-        <View style={styles.inputActions}>
-          <TouchableOpacity style={styles.iconButton}>
+
+        <View className="flex-row items-center">
+          <TouchableOpacity className="p-1">
             <Ionicons name="happy-outline" size={20} color="#666666" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitText}>Submit</Text>
+
+          <TouchableOpacity
+            className="ml-auto bg-[#2196F3] px-4 py-[6] rounded-[4]"
+            onPress={handleSubmit}
+          >
+            <Text className="text-white text-[13px] font-semibold">Submit</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Comments List */}
-      <View style={styles.commentsListContainer}>
-        <Text style={styles.commentsTitle}>Comments</Text>
-        <View style={styles.commentsList}>
-          {comments.map(renderComment)}
-        </View>
+      <View className="bg-black/50 rounded-[12] p-4 min-h-[300]">
+        <Text className="text-white text-[18px] font-semibold mb-4">
+          Comments
+        </Text>
+
+        <View>{comments.map(renderComment)}</View>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  inputContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  input: {
-    fontSize: 14,
-    color: '#333333',
-    minHeight: 40,
-    marginBottom: 8,
-  },
-  inputActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  iconButton: {
-    padding: 4,
-  },
-  submitButton: {
-    marginLeft: 'auto',
-    backgroundColor: '#2196F3',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 4,
-  },
-  submitText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  commentsListContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 12,
-    padding: 16,
-    minHeight: 300,
-  },
-  commentsTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  commentsList: {
-    // Removed flex: 1 since we're not using FlatList anymore
-  },
-  commentItem: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  avatarContainer: {
-    marginRight: 12,
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
-  avatarPlaceholder: {
-    backgroundColor: '#4A90E2',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  commentContent: {
-    flex: 1,
-  },
-  commentHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  userName: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    marginRight: 8,
-  },
-  timeAgo: {
-    color: '#999999',
-    fontSize: 12,
-  },
-  commentText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 8,
-  },
-  commentActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  likeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  likeCount: {
-    color: '#FFFFFF',
-    fontSize: 12,
-  },
-  replyButton: {
-    color: '#999999',
-    fontSize: 12,
-  },
-});

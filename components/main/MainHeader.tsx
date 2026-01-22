@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { useCurrentUser } from "../../hooks/use-current-user";
 import ProfileMenu from "./ProfileMenu";
 
@@ -14,24 +14,29 @@ export default function MainHeader({ onSearchPress }: MainHeaderProps) {
 
   return (
     <>
-      <View style={styles.container}>
+      <View className="absolute top-0 left-0 right-0 z-10 flex-row justify-between items-center px-[14] py-2 pt-[30] bg-transparent">
         <Image
           source={require("../../assets/images/logo.png")}
-          style={styles.logoImage}
           resizeMode="contain"
+          className="w-[180] h-[54]"
         />
 
-        <View style={styles.rightSection}>
-          <TouchableOpacity onPress={onSearchPress} style={styles.iconButton}>
+        <View className="flex-row items-center gap-[10]">
+          <TouchableOpacity
+            onPress={onSearchPress}
+            className="w-[23] h-[23] justify-center items-center"
+          >
             <Ionicons name="search" size={23} color="#FFFFFF" />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => setMenuVisible(true)}
-            style={styles.profileButton}
+            className="ml-[5]"
           >
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getUserInitial()}</Text>
+            <View className="w-[25] h-[23] rounded-full bg-[#4A4A4A] justify-center items-center">
+              <Text className="text-[#D9D9D9] text-[16px] font-semibold">
+                {getUserInitial()}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -44,51 +49,3 @@ export default function MainHeader({ onSearchPress }: MainHeaderProps) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    paddingTop: 30, // Status bar padding
-    backgroundColor: "transparent",
-  },
-  logoImage: {
-    width: 180,
-    height: 54,
-  },
-  rightSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  iconButton: {
-    width: 23,
-    height: 23,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  profileButton: {
-    marginLeft: 5,
-  },
-  avatar: {
-    width: 25,
-    height: 23,
-    borderRadius: 12.5,
-    backgroundColor: "#4A4A4A",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatarText: {
-    color: "#D9D9D9",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

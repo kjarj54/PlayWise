@@ -1,27 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import React from "react";
+import { View } from "react-native";
 
 export default function SectionSkeleton() {
   return (
-    <View style={styles.row}>
-      <View style={styles.card} />
-      <View style={styles.card} />
-      <View style={styles.card} />
+    <View className="flex-row justify-between px-3 mb-3">
+      <View className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]" />
+      <View className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]" />
+      <View className="w-[32%] h-[120] rounded-lg bg-[#2a2a2a]" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    marginBottom: 12,
-  },
-  card: {
-    width: '32%',
-    height: 120,
-    borderRadius: 8,
-    backgroundColor: '#2a2a2a',
-  },
-});

@@ -1,63 +1,45 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
-import { APP_COLORS } from '../../constants/colors';
+import React from "react";
+import { Linking, Text, TouchableOpacity, View } from "react-native";
+import { APP_COLORS } from "../../constants/colors";
 
 export default function MainFooter() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>PlayWise</Text>
-      <Text style={styles.text}>Encuentra juegos, compara precios y descubre novedades.</Text>
+    <View className="py-6 px-4 items-center justify-center bg-transparent">
+      <Text
+        className="text-[16px] font-bold mb-[6]"
+        style={{ color: APP_COLORS.labelActive || "#FFFFFF" }}
+      >
+        PlayWise
+      </Text>
 
-      <View style={styles.row}>
-        <TouchableOpacity onPress={() => Linking.openURL('mailto:playwiseapp2025@gmail.com')} accessibilityLabel="Enviar correo a soporte">
-          <Text style={styles.link}>Soporte</Text>
+      <Text className="text-[#cfcfcf] text-[12px] text-center mb-[10]">
+        Encuentra juegos, compara precios y descubre novedades.
+      </Text>
+
+      <View className="flex-row justify-center items-center mb-[10] space-x-4">
+        <TouchableOpacity
+          onPress={() => Linking.openURL("mailto:playwiseapp2025@gmail.com")}
+          accessibilityLabel="Enviar correo a soporte"
+        >
+          <Text className="text-white text-[12px] underline">Soporte</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => Linking.openURL('https://example.com/privacy')}>
-          <Text style={styles.link}>Privacidad</Text>
+
+        <TouchableOpacity
+          onPress={() => Linking.openURL("https://example.com/privacy")}
+        >
+          <Text className="text-white text-[12px] underline">Privacidad</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => Linking.openURL('https://example.com/terms')}>
-          <Text style={styles.link}>Términos</Text>
+
+        <TouchableOpacity
+          onPress={() => Linking.openURL("https://example.com/terms")}
+        >
+          <Text className="text-white text-[12px] underline">Términos</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.copy}>© {new Date().getFullYear()} PlayWise</Text>
+      <Text className="text-[#9b9b9b] text-[11px]">
+        © {new Date().getFullYear()} PlayWise
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  title: {
-    color: APP_COLORS.labelActive || '#fff',
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  text: {
-    color: '#cfcfcf',
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  link: {
-    color: '#fff',
-    fontSize: 12,
-    textDecorationLine: 'underline',
-  },
-  copy: {
-    color: '#9b9b9b',
-    fontSize: 11,
-  },
-});

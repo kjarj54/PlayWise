@@ -1,12 +1,20 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React from 'react';
-import { ActivityIndicator, FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { APP_COLORS } from '../constants/colors';
-import { useTranslation } from '../hooks/use-translation';
-import storageService from '../services/storageService';
-import wishlistService from '../services/wishlistService';
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { APP_COLORS } from "../constants/colors";
+import { useTranslation } from "../hooks/use-translation";
+import storageService from "../services/storageService";
+import wishlistService from "../services/wishlistService";
 
 export default function WishlistScreen() {
   const router = useRouter();
@@ -31,47 +39,76 @@ export default function WishlistScreen() {
         if (mounted) setLoading(false);
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
     <LinearGradient
       colors={[APP_COLORS.gradientTop, APP_COLORS.gradientBottom]}
-      style={styles.container}
+      className="flex-1"
     >
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
+      <SafeAreaView className="flex-1">
+        {/* Header */}
+        <View className="flex-row items-center justify-between px-4 py-3 border-b border-white/10">
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.title}>{t('games.wishlist')}</Text>
-          <View style={{ width: 28 }} />
+
+          <Text className="text-white text-[20px] font-semibold">
+            {t("games.wishlist")}
+          </Text>
+
+          <View className="w-[28]" />
         </View>
 
-        <View style={styles.content}>
+        {/* Content */}
+        <View className="flex-1 items-center justify-center">
           {loading ? (
             <ActivityIndicator size="large" color="#FFFFFF" />
           ) : items.length === 0 ? (
-            <Text style={styles.placeholder}>{t('games.wishlist')} vacía</Text>
+            <Text className="text-white/50 text-[16px]">
+              {t("games.wishlist")} vacía
+            </Text>
           ) : (
             <FlatList
               data={items}
               keyExtractor={(item) => String(item.id)}
-              contentContainerStyle={styles.list}
+              contentContainerStyle={{ paddingVertical: 8 }}
               renderItem={({ item }) => {
                 const cover = item.game_cover || item.game?.cover_image || null;
-                const name = item.game_name || item.game?.name || t('common.unknown');
-                const genre = item.game_genre || item.game?.genre || '';
+                const name =
+                  item.game_name || item.game?.name || t("common.unknown");
+                const genre = item.game_genre || item.game?.genre || "";
+
                 return (
-                  <View style={styles.row}>
+                  <View className="flex-row items-center px-4 py-3 border-b border-white/10">
                     {cover ? (
-                      <Image source={{ uri: cover }} style={styles.rowImage} />
+                      <Image
+                        source={{ uri: cover }}
+                        className="w-[60] h-[80] rounded-[4] mr-3"
+                      />
                     ) : (
-                      <View style={[styles.rowImage, styles.rowImagePlaceholder]} />
+                      <View className="w-[60] h-[80] rounded-[4] mr-3 bg-white/20" />
                     )}
-                    <View style={styles.rowInfo}>
-                      <Text style={styles.rowTitle} numberOfLines={1}>{name}</Text>
-                      {!!genre && <Text style={styles.rowSubtitle} numberOfLines={1}>{genre}</Text>}
+
+                    <View className="flex-1">
+                      <Text
+                        className="text-white text-[14px] font-semibold"
+                        numberOfLines={1}
+                      >
+                        {name}
+                      </Text>
+
+                      {!!genre && (
+                        <Text
+                          className="text-white/50 text-[12px] mt-1"
+                          numberOfLines={1}
+                        >
+                          {genre}
+                        </Text>
+                      )}
                     </View>
                   </View>
                 );
@@ -83,35 +120,3 @@ export default function WishlistScreen() {
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#FFFFFF10',
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholder: {
-    color: '#FFFFFF80',
-    fontSize: 16,
-  },
-});

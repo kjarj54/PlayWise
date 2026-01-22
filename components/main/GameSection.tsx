@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import GameCard from "./GameCard";
 
 interface Game {
@@ -15,7 +15,7 @@ interface GameSectionProps {
   textColor?: string;
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
-  wishlistGameIds?: string[]; // Array de api_ids de juegos en wishlist (solo para mostrar el corazón)
+  wishlistGameIds?: string[]; // Array de api_ids en wishlist (solo visual)
 }
 
 export default function GameSection({
@@ -27,22 +27,29 @@ export default function GameSection({
   wishlistGameIds = [],
 }: GameSectionProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={[styles.sectionTitle, { color: textColor }]}>{title}</Text>
+    <View className="mb-6">
+      <View className="flex-row justify-between items-center px-[14] mb-2">
+        <Text
+          className="text-[20px] font-semibold"
+          style={{ color: textColor }}
+        >
+          {title}
+        </Text>
+
         {onLoadMore && (
           <Text
-            style={styles.loadMore}
+            className="text-[#888] text-[14px] py-1 px-2"
             onPress={() => !isLoadingMore && onLoadMore()}
           >
             {isLoadingMore ? "Cargando..." : "Ver más"}
           </Text>
         )}
       </View>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerClassName="px-[14]"
       >
         {games.map((game) => (
           <GameCard
@@ -58,31 +65,3 @@ export default function GameSection({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 12,
-    paddingHorizontal: 14,
-  },
-  scrollContent: {
-    paddingHorizontal: 14,
-  },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    marginBottom: 8,
-  },
-  loadMore: {
-    color: "#888",
-    fontSize: 14,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-});

@@ -1,7 +1,6 @@
-import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useCallback, useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, ScrollView, Text, View } from "react-native";
 import ErrorBoundary from "../../../components/common/ErrorBoundary";
 import MainFooter from "../../../components/common/MainFooter";
 import ScreenSuspense from "../../../components/common/ScreenSuspense";
@@ -12,9 +11,9 @@ import MainHeader from "../../../components/main/MainHeader";
 import { APP_COLORS } from "../../../constants/colors";
 import GAME_CATEGORIES from "../../../constants/gameCategories";
 import {
-    getGamesByGenre,
-    getTopRatedGames,
-    RawgGameShort,
+  getGamesByGenre,
+  getTopRatedGames,
+  RawgGameShort,
 } from "../../../services/rawgService";
 import wishlistService from "../../../services/wishlistService";
 
@@ -148,36 +147,10 @@ export default function MainScreen() {
     }[]
   >([]);
 
-  // Estado para la wishlist - mapea game_api_id -> wishlist_id para uso rápido
-  const [wishlistMap, setWishlistMap] = useState<Record<string, number>>({});
+  // Estado para la wishlist - almacena los api_ids de juegos en wishlist
+  const [wishlistGameIds, setWishlistGameIds] = useState<string[]>([]);
 
   const PAGE_SIZE = 6;
-
-  // Función para cargar la wishlist (separada para reutilizar)
-  const loadWishlist = useCallback(async () => {
-    try {
-      console.log("🔄 Cargando wishlist del usuario...");
-      const wishlist = await wishlistService.list();
-
-      // Crear un mapeo de game_api_id -> wishlist_id para acceso rápido
-      const mapData: Record<string, number> = {};
-      wishlist.forEach((item: any) => {
-        if (item.game_api_id) {
-          mapData[String(item.game_api_id)] = item.id;
-          console.log(`📌 ${item.game_api_id} -> wishlist_id: ${item.id}`);
-        }
-      });
-
-      setWishlistMap(mapData);
-      console.log(`✅ Wishlist cargada: ${wishlist.length} juegos`);
-    } catch (err) {
-      console.warn(
-        "⚠️ Error cargando wishlist (usuario no autenticado?):",
-        err,
-      );
-      setWishlistMap({});
-    }
-  }, []);
 
   function mapRawg(item: RawgGameShort): Game {
     return {
@@ -246,25 +219,33 @@ export default function MainScreen() {
       }
     })();
 
-    // Cargar wishlist inicial
-    loadWishlist();
-  }, [loadWishlist]);
-
-  // Recargar wishlist cada vez que el usuario regresa a esta pantalla
-  useFocusEffect(
-    useCallback(() => {
-      console.log("🎯 Pantalla enfocada - recargando wishlist...");
-      loadWishlist();
-    }, [loadWishlist]),
-  );
+    // Cargar wishlist del usuario
+    (async () => {
+      try {
+        console.log("🔄 Cargando wishlist del usuario...");
+        const wishlist = await wishlistService.list();
+        const apiIds = wishlist
+          .map((item: any) => item.game_api_id)
+          .filter(Boolean);
+        setWishlistGameIds(apiIds);
+        console.log(`✅ Wishlist cargada: ${apiIds.length} juegos`, apiIds);
+      } catch (err) {
+        console.warn(
+          "⚠️ Error cargando wishlist (usuario no autenticado?):",
+          err,
+        );
+        setWishlistGameIds([]);
+      }
+    })();
+  }, []);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1">
       <LinearGradient
         colors={[APP_COLORS.gradientTop, APP_COLORS.gradientBottom]}
-        style={styles.gradient}
+        className="flex-1"
       >
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView className="flex-1">
           {/* Suspense-like loading UI while main content loads */}
           <ScreenSuspense
             loading={
@@ -274,28 +255,19 @@ export default function MainScreen() {
               )
             }
           >
-            <ScrollView
-              style={styles.scrollView}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.heroContainer}>
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+              <View className="relative">
                 {/* Hero: show skeleton until heroGames are loaded */}
                 {heroGames.length === 0 ? (
-                  <View
-                    style={{
-                      height: 340,
-                      width: "100%",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: "#fff" }}>Cargando hero...</Text>
+                  <View className="h-[340] w-full items-center justify-center">
+                    <Text className="text-white">Cargando hero...</Text>
                   </View>
                 ) : (
                   <ErrorBoundary>
                     <HeroSection games={heroGames} />
                   </ErrorBoundary>
                 )}
+
                 <MainHeader />
               </View>
 
@@ -307,7 +279,7 @@ export default function MainScreen() {
                     key={cat.key}
                     title={cat.title}
                     games={categoriesData[cat.key]?.games || []}
-                    wishlistGameIds={Object.keys(wishlistMap)}
+                    wishlistGameIds={wishlistGameIds}
                     onLoadMore={() => {
                       const state = categoriesData[cat.key];
                       if (!state || state.loading || !state.hasMore) return;
@@ -317,20 +289,17 @@ export default function MainScreen() {
                   />
                 ) : (
                   // Show per-section skeleton while this category is empty
-                  <View key={cat.key} style={{ marginBottom: 12 }}>
-                    <Text
-                      style={{ color: "#fff", marginLeft: 12, marginBottom: 8 }}
-                    >
-                      {cat.title}
-                    </Text>
-                    <View style={{ paddingHorizontal: 12 }}>
+                  <View key={cat.key} className="mb-3">
+                    <Text className="text-white ml-3 mb-2">{cat.title}</Text>
+                    <View className="px-3">
                       <SectionSkeleton />
                     </View>
                   </View>
                 ),
               )}
+
               {/* Footer at the end of the content */}
-              <View style={{ paddingTop: 12 }}>
+              <View className="pt-3">
                 <MainFooter />
               </View>
             </ScrollView>
@@ -340,21 +309,3 @@ export default function MainScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  heroContainer: {
-    position: "relative",
-  },
-});

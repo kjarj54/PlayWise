@@ -1,5 +1,5 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { Image, Text, View } from "react-native";
 
 interface StoreCardProps {
   storeLogo: { uri: string } | number;
@@ -9,54 +9,32 @@ interface StoreCardProps {
   discount?: string;
 }
 
-export default function StoreCard({ storeLogo, storeName, price, originalPrice, discount }: StoreCardProps) {
+export default function StoreCard({
+  storeLogo,
+  storeName,
+  price,
+  originalPrice,
+  discount,
+}: StoreCardProps) {
   const hasDiscount = discount && parseFloat(discount) > 0;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image source={storeLogo} style={styles.logo} resizeMode="contain" />
+    <View className="w-[30%] mb-[6] mr-[6]">
+      {/* Logo */}
+      <View className="h-[55] bg-[#013a60] rounded-t-[4] items-center justify-center overflow-hidden">
+        <Image
+          source={storeLogo}
+          className="w-[80%] h-[80%]"
+          resizeMode="contain"
+        />
       </View>
-      <View style={styles.priceContainer}>
-        <Text style={styles.price}>
+
+      {/* Price */}
+      <View className="h-[20] bg-[#013a60] rounded-b-[4] items-center justify-center">
+        <Text className="text-white text-[12px] font-extrabold">
           ${price} {hasDiscount && `${Math.round(parseFloat(discount))}% OFF`}
         </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '30%',
-    marginBottom: 6,
-    marginRight: 6,
-    // Let height be determined by content to avoid enforcing a fixed aspect ratio on web
-  },
-  logoContainer: {
-    height: 55,
-    backgroundColor: '#013a60',
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  logo: {
-    width: '80%',
-    height: '80%',
-  },
-  priceContainer: {
-    height: 20,
-    backgroundColor: '#013a60',
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  price: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-});

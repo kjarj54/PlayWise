@@ -1,17 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
 import {
-    Alert,
-    Modal,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { useTranslation } from '../../hooks/use-translation';
-import storageService from '../../services/storageService';
+  Alert,
+  Modal,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useTranslation } from "../../hooks/use-translation";
+import storageService from "../../services/storageService";
 
 interface ProfileMenuProps {
   visible: boolean;
@@ -24,57 +23,60 @@ export default function ProfileMenu({ visible, onClose }: ProfileMenuProps) {
 
   const handleLogout = async () => {
     Alert.alert(
-      t('common.confirm'),
-      t('auth.logoutConfirm') || '¿Estás seguro de que deseas cerrar sesión?',
+      t("common.confirm"),
+      t("auth.logoutConfirm") || "¿Estás seguro de que deseas cerrar sesión?",
       [
         {
-          text: t('common.cancel') || 'Cancelar',
+          text: t("common.cancel") || "Cancelar",
           onPress: () => {},
-          style: 'cancel',
+          style: "cancel",
         },
         {
-          text: t('auth.logout') || 'Cerrar sesión',
+          text: t("auth.logout") || "Cerrar sesión",
           onPress: async () => {
             try {
               await storageService.clear();
               onClose();
-              router.replace('/login');
+              router.replace("/login");
             } catch (error) {
-              Alert.alert(t('common.error'), t('auth.logoutError') || 'Error al cerrar sesión');
+              Alert.alert(
+                t("common.error"),
+                t("auth.logoutError") || "Error al cerrar sesión",
+              );
             }
           },
-          style: 'destructive',
+          style: "destructive",
         },
-      ]
+      ],
     );
   };
 
   const menuItems = [
     {
-      id: 'wishlist',
-      label: t('menu.wishlist') || 'Lista de deseos',
-      icon: 'heart-outline' as const,
+      id: "wishlist",
+      label: t("menu.wishlist") || "Lista de deseos",
+      icon: "heart-outline" as const,
       onPress: () => {
         onClose();
-        router.push('/wishlist');
+        router.push("/wishlist");
       },
     },
     {
-      id: 'friends',
-      label: t('menu.friends') || 'Amigos',
-      icon: 'people-outline' as const,
+      id: "friends",
+      label: t("menu.friends") || "Amigos",
+      icon: "people-outline" as const,
       onPress: () => {
         onClose();
-        router.push('/friends');
+        router.push("/friends");
       },
     },
     {
-      id: 'settings',
-      label: t('menu.accountSettings') || 'Configuración de cuenta',
-      icon: 'settings-outline' as const,
+      id: "settings",
+      label: t("menu.accountSettings") || "Configuración de cuenta",
+      icon: "settings-outline" as const,
       onPress: () => {
         onClose();
-        router.push('/settings');
+        router.push("/settings");
       },
     },
   ];
@@ -86,35 +88,39 @@ export default function ProfileMenu({ visible, onClose }: ProfileMenuProps) {
       animationType="fade"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.overlay}>
+      <SafeAreaView className="flex-1 bg-black/50 justify-end">
         <TouchableOpacity
-          style={styles.closeArea}
+          className="flex-1"
           activeOpacity={1}
           onPress={onClose}
         />
-        
-        <View style={styles.menuContainer}>
+
+        <View className="bg-[#1A1A1A] rounded-t-[20] py-4 px-4 pb-8">
           {menuItems.map((item) => (
             <TouchableOpacity
               key={item.id}
-              style={styles.menuItem}
               onPress={item.onPress}
+              className="flex-row items-center py-[14] px-3 rounded-[12] mb-2 gap-3"
+              activeOpacity={0.85}
             >
               <Ionicons name={item.icon} size={20} color="#FFFFFF" />
-              <Text style={styles.menuLabel}>{item.label}</Text>
+              <Text className="text-white text-[16px] font-medium flex-1">
+                {item.label}
+              </Text>
               <Ionicons name="chevron-forward" size={20} color="#FFFFFF80" />
             </TouchableOpacity>
           ))}
 
-          <View style={styles.divider} />
+          <View className="h-[1] bg-white/20 my-3" />
 
           <TouchableOpacity
-            style={[styles.menuItem, styles.logoutItem]}
             onPress={handleLogout}
+            className="flex-row items-center py-[14] px-3 rounded-[12] gap-3 bg-[#FF4444]/10"
+            activeOpacity={0.85}
           >
             <Ionicons name="log-out-outline" size={20} color="#FF4444" />
-            <Text style={[styles.menuLabel, styles.logoutLabel]}>
-              {t('auth.logout') || 'Cerrar sesión'}
+            <Text className="text-[#FF4444] text-[16px] font-medium flex-1">
+              {t("auth.logout") || "Cerrar sesión"}
             </Text>
             <Ionicons name="chevron-forward" size={20} color="#FF444480" />
           </TouchableOpacity>
@@ -123,48 +129,3 @@ export default function ProfileMenu({ visible, onClose }: ProfileMenuProps) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  closeArea: {
-    flex: 1,
-  },
-  menuContainer: {
-    backgroundColor: '#1A1A1A',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 8,
-    gap: 12,
-  },
-  menuLabel: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-    flex: 1,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#FFFFFF20',
-    marginVertical: 12,
-  },
-  logoutItem: {
-    backgroundColor: '#FF444410',
-  },
-  logoutLabel: {
-    color: '#FF4444',
-  },
-});

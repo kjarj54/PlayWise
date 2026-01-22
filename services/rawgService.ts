@@ -22,7 +22,11 @@ export interface RawgGamesResponse {
   previous?: string | null;
 }
 
-export async function getGamesByGenre(genreSlug: string, page = 1, pageSize = 12): Promise<RawgGamesResponse> {
+export async function getGamesByGenre(
+  genreSlug: string,
+  page = 1,
+  pageSize = 12,
+): Promise<RawgGamesResponse> {
   const url = `${RAWG_BASE}/games?genres=${encodeURIComponent(genreSlug)}&page=${page}&page_size=${pageSize}${RAWG_KEY ? `&key=${RAWG_KEY}` : ""}`;
 
   const res = await fetch(url);
@@ -47,7 +51,11 @@ export async function getGameDetails(idOrSlug: string): Promise<any> {
   return res.json();
 }
 
-export async function searchGames(query: string, page = 1, pageSize = 12): Promise<RawgGamesResponse> {
+export async function searchGames(
+  query: string,
+  page = 1,
+  pageSize = 12,
+): Promise<RawgGamesResponse> {
   const url = `${RAWG_BASE}/games?search=${encodeURIComponent(query)}&page=${page}&page_size=${pageSize}${RAWG_KEY ? `&key=${RAWG_KEY}` : ""}`;
 
   const res = await fetch(url);
@@ -64,7 +72,10 @@ export interface RawgGameFull extends RawgGameShort {
   description_raw?: string;
 }
 
-export async function getTopRatedGames(page = 1, pageSize = 5): Promise<RawgGameFull[]> {
+export async function getTopRatedGames(
+  page = 1,
+  pageSize = 5,
+): Promise<RawgGameFull[]> {
   const url = `${RAWG_BASE}/games?ordering=-rating&page=${page}&page_size=${pageSize}${RAWG_KEY ? `&key=${RAWG_KEY}` : ""}`;
 
   const res = await fetch(url);
@@ -78,46 +89,52 @@ export async function getTopRatedGames(page = 1, pageSize = 5): Promise<RawgGame
 
   // Fetch details for each to get description
   const stripHtml = (html: string) => {
-    if (!html) return '';
+    if (!html) return "";
     // Remove tags and collapse whitespace
-    return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return html
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   };
 
   const removeUrls = (text: string) => {
-    if (!text) return '';
+    if (!text) return "";
     // Remove http(s) links and www links, also common steam/store links without protocol
     return text
-      .replace(/https?:\/\/\S+/gi, ' ')
-      .replace(/www\.\S+/gi, ' ')
-      .replace(/store\.steampowered\.com\S+/gi, ' ')
-      .replace(/\S+\.com\/\S+/gi, ' ')
-      .replace(/\s+/g, ' ')
+      .replace(/https?:\/\/\S+/gi, " ")
+      .replace(/www\.\S+/gi, " ")
+      .replace(/store\.steampowered\.com\S+/gi, " ")
+      .replace(/\S+\.com\/\S+/gi, " ")
+      .replace(/\s+/g, " ")
       .trim();
   };
 
   const cleanDescription = (rawHtml: string) => {
-    const text = stripHtml(String(rawHtml || ''));
+    const text = stripHtml(String(rawHtml || ""));
     const withoutUrls = removeUrls(text);
     // If after removing urls we have something meaningful, return it; otherwise return empty string
     if (withoutUrls && withoutUrls.length > 20) return withoutUrls;
     // fallback: if original text had more content (but mostly urls), try to extract readable fragments
-    const short = text.replace(/https?:\/\/\S+/gi, '').replace(/\s+/g, ' ').trim();
-    return short.length > 10 ? short : '';
+    const short = text
+      .replace(/https?:\/\/\S+/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    return short.length > 10 ? short : "";
   };
 
   const details = await Promise.all(
     results.map(async (g) => {
       try {
         const det = await getGameDetails(String(g.id));
-        const raw = det.description_raw || det.description || '';
+        const raw = det.description_raw || det.description || "";
         return {
           ...g,
           description_raw: cleanDescription(String(raw)),
         } as RawgGameFull;
       } catch (e) {
-        return { ...g, description_raw: '' } as RawgGameFull;
+        return { ...g, description_raw: "" } as RawgGameFull;
       }
-    })
+    }),
   );
 
   return details;
