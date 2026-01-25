@@ -16,6 +16,7 @@ interface GameSectionProps {
   onLoadMore?: () => void;
   isLoadingMore?: boolean;
   wishlistGameIds?: string[]; // Array de api_ids en wishlist (solo visual)
+  onToggleWishlist?: (game: Game) => void;
 }
 
 export default function GameSection({
@@ -25,6 +26,7 @@ export default function GameSection({
   onLoadMore,
   isLoadingMore = false,
   wishlistGameIds = [],
+  onToggleWishlist,
 }: GameSectionProps) {
   return (
     <View className="mb-6">
@@ -59,6 +61,7 @@ export default function GameSection({
             title={game.title}
             genre={game.genre}
             isInWishlist={wishlistGameIds.includes(game.id)}
+            onToggleWishlist={() => onToggleWishlist?.(game)}
           />
         ))}
       </ScrollView>

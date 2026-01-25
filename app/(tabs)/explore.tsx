@@ -1,26 +1,27 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Heart } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  PanResponder,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    PanResponder,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import GradientBackground from "../../components/GradientBackground";
 import CommentSection from "../../components/gameDetails/CommentSection";
 import GameVariantAccordion from "../../components/gameDetails/GameVariantAccordion";
 import MainHeader from "../../components/main/MainHeader";
 import {
-  CheapSharkDeal,
-  searchDealsBySteamAppID,
-  searchDealsByTitle,
-  searchDealsByTitleExact,
+    CheapSharkDeal,
+    searchDealsBySteamAppID,
+    searchDealsByTitle,
+    searchDealsByTitleExact,
 } from "../../services/cheapSharkService";
 import { getGameDetails, RawgGameFull } from "../../services/rawgService";
 import wishlistService from "../../services/wishlistService";
@@ -346,25 +347,36 @@ export default function ExploreScreen() {
   const showDescriptionButton = description.length > 200;
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+  const [wishlistId, setWishlistId] = useState<string | null>(null);
 
   const primaryGenre = genres[0] || gameGenre;
 
   // Verificar si el juego ya está en la wishlist
-  useEffect(() => {
-    const checkWishlistStatus = async () => {
-      try {
-        const wishlist = await wishlistService.list();
-        const isInWishlist = wishlist.some(
-          (item: any) => item.game?.api_id === gameId,
-        );
-        setIsWishlisted(isInWishlist);
-      } catch (error) {
-        console.error("Error checking wishlist status:", error);
-      }
-    };
-
-    checkWishlistStatus();
+  const refreshWishlistState = useCallback(async () => {
+    try {
+      const wishlist = await wishlistService.list();
+      const found = wishlist.find(
+        (item: any) =>
+          item.game?.api_id === gameId || item.game_api_id === gameId,
+      );
+      setIsWishlisted(!!found);
+      setWishlistId(found ? String(found.id || found.wishlist_id || "") : null);
+    } catch (error) {
+      console.error("Error checking wishlist status:", error);
+      setIsWishlisted(false);
+      setWishlistId(null);
+    }
   }, [gameId]);
+
+  useEffect(() => {
+    refreshWishlistState();
+  }, [gameId, refreshWishlistState]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshWishlistState();
+    }, [refreshWishlistState]),
+  );
 
   const handleWishlistPress = async () => {
     try {
@@ -386,15 +398,42 @@ export default function ExploreScreen() {
       // URL de RAWG para este juego
       const gameUrl = `https://rawg.io/games/${gameId}`;
 
-      // Add to wishlist and update UI
-      console.log("⏳ Llamando a wishlistService.addByApiId()...");
-      const game = await wishlistService.addByApiId(gamePayload, gameUrl);
+      if (isWishlisted) {
+        let targetId = wishlistId;
+        if (!targetId) {
+          // Fallback: buscar id en servidor por si no lo teníamos en memoria
+          const wishlist = await wishlistService.list();
+          const found = wishlist.find(
+            (item: any) =>
+              item.game?.api_id === gameId || item.game_api_id === gameId,
+          );
+          targetId = found ? String(found.id || found.wishlist_id || "") : null;
+        }
 
-      console.log("✅ ÉXITO! Guardado en BD:", JSON.stringify(game, null, 2));
-      console.log("🎮 ========== WISHLIST PROCESS COMPLETED ==========");
+        if (targetId) {
+          console.log("🗑️ Eliminando de wishlist, id:", targetId);
+          await wishlistService.removeByWishlistId(targetId);
+          setIsWishlisted(false);
+          setWishlistId(null);
+          Alert.alert("🗑️ Eliminado", `"${gameTitle}" se quitó de tu wishlist`);
+        } else {
+          console.warn(
+            "⚠️ No se encontró wishlistId para eliminar; refrescando estado",
+          );
+          await refreshWishlistState();
+        }
+      } else {
+        // Add to wishlist and update UI
+        console.log("⏳ Llamando a wishlistService.addByApiId()...");
+        const game = await wishlistService.addByApiId(gamePayload, gameUrl);
 
-      setIsWishlisted(true);
-      Alert.alert("✅ Éxito", `"${gameTitle}" agregado a tu wishlist`);
+        console.log("✅ ÉXITO! Guardado en BD:", JSON.stringify(game, null, 2));
+        console.log("🎮 ========== WISHLIST PROCESS COMPLETED ==========");
+
+        await refreshWishlistState();
+        setIsWishlisted(true);
+        Alert.alert("✅ Éxito", `"${gameTitle}" agregado a tu wishlist`);
+      }
     } catch (error: any) {
       console.error("❌ ========== ERROR PROCESS ==========");
       console.error("Error message:", error?.message);
@@ -409,6 +448,7 @@ export default function ExploreScreen() {
         "No se pudo guardar en la wishlist. Verifica tu conexión.";
       Alert.alert("❌ Error", errorMessage);
       setIsWishlisted(false);
+      setWishlistId(null);
     } finally {
       setIsWishlistLoading(false);
     }

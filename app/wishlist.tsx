@@ -6,11 +6,11 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { APP_COLORS } from "../constants/colors";
 import { useTranslation } from "../hooks/use-translation";
 import storageService from "../services/storageService";

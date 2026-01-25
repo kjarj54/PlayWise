@@ -11,6 +11,7 @@ interface GameCardProps {
   genre: string;
   rating?: number;
   onPress?: () => void;
+  onToggleWishlist?: () => void; // Si no se pasa, el corazón es solo visual
   isInWishlist?: boolean; // Solo visual
 }
 
@@ -21,6 +22,7 @@ export default function GameCard({
   genre,
   rating,
   onPress,
+  onToggleWishlist,
   isInWishlist = false,
 }: GameCardProps) {
   const [wishlisted, setWishlisted] = useState(isInWishlist);
@@ -59,14 +61,28 @@ export default function GameCard({
         resizeMode="cover"
       />
 
-      {/* Heart (solo visual) */}
-      <View className="absolute top-[6] right-[6] w-[24] h-[24] rounded-full bg-black/35 items-center justify-center z-10">
-        <Heart
-          size={16}
-          color={wishlisted ? "#FF4D6D" : "#FFFFFF"}
-          fill={wishlisted ? "#FF4D6D" : "none"}
-        />
-      </View>
+      {/* Heart: interactivo solo si se pasa onToggleWishlist */}
+      {onToggleWishlist ? (
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={onToggleWishlist}
+          className="absolute top-[6] right-[6] w-[26] h-[26] rounded-full bg-black/45 items-center justify-center z-10"
+        >
+          <Heart
+            size={16}
+            color={wishlisted ? "#FF4D6D" : "#FFFFFF"}
+            fill={wishlisted ? "#FF4D6D" : "none"}
+          />
+        </TouchableOpacity>
+      ) : (
+        <View className="absolute top-[6] right-[6] w-[26] h-[26] rounded-full bg-black/45 items-center justify-center z-10">
+          <Heart
+            size={16}
+            color={wishlisted ? "#FF4D6D" : "#FFFFFF"}
+            fill={wishlisted ? "#FF4D6D" : "none"}
+          />
+        </View>
+      )}
 
       {/* Gradient overlay */}
       <LinearGradient

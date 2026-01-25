@@ -3,7 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
 import React from "react";
-import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { APP_COLORS } from "../constants/colors";
 import { useTranslation } from "../hooks/use-translation";
 

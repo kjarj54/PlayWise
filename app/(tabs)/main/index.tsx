@@ -1,6 +1,8 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, Text, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ErrorBoundary from "../../../components/common/ErrorBoundary";
 import MainFooter from "../../../components/common/MainFooter";
 import ScreenSuspense from "../../../components/common/ScreenSuspense";
@@ -149,6 +151,7 @@ export default function MainScreen() {
 
   // Estado para la wishlist - almacena los api_ids de juegos en wishlist
   const [wishlistGameIds, setWishlistGameIds] = useState<string[]>([]);
+  const [wishlistMap, setWishlistMap] = useState<Record<string, string>>({});
 
   const PAGE_SIZE = 6;
 
@@ -160,6 +163,63 @@ export default function MainScreen() {
       genre: item.genres && item.genres.length ? item.genres[0].name : "",
     };
   }
+
+  const refreshWishlist = useCallback(async () => {
+    try {
+      console.log("🔄 Cargando wishlist del usuario...");
+      const wishlist = await wishlistService.list();
+
+      const apiIds = wishlist
+        .map((item: any) => item.game_api_id)
+        .filter(Boolean);
+
+      const map: Record<string, string> = {};
+      wishlist.forEach((item: any) => {
+        const apiId = item.game_api_id;
+        const wishlistId = item.id || item.wishlist_id;
+        if (apiId && wishlistId) {
+          map[String(apiId)] = String(wishlistId);
+        }
+      });
+
+      setWishlistGameIds(apiIds);
+      setWishlistMap(map);
+      console.log(`✅ Wishlist cargada: ${apiIds.length} juegos`, apiIds);
+    } catch (err) {
+      console.warn(
+        "⚠️ Error cargando wishlist (usuario no autenticado?):",
+        err,
+      );
+      setWishlistGameIds([]);
+      setWishlistMap({});
+    }
+  }, []);
+
+  const handleToggleWishlist = async (game: Game) => {
+    const apiId = game.id;
+    const wishlistId = wishlistMap[apiId];
+
+    try {
+      if (wishlistId) {
+        await wishlistService.removeByWishlistId(wishlistId);
+        setWishlistGameIds((prev) => prev.filter((id) => id !== apiId));
+        setWishlistMap((prev) => {
+          const { [apiId]: _, ...rest } = prev;
+          return rest;
+        });
+      } else {
+        await wishlistService.addByApiId({
+          api_id: apiId,
+          name: game.title,
+          genre: game.genre,
+          cover_image: game.image,
+        });
+        await refreshWishlist();
+      }
+    } catch (err) {
+      console.warn("⚠️ No se pudo actualizar la wishlist:", err);
+    }
+  };
 
   async function loadCategory(key: string, pageToLoad = 1) {
     const cat = GAME_CATEGORIES.find((c) => c.key === key);
@@ -218,26 +278,15 @@ export default function MainScreen() {
         console.warn("Error loading top-rated games", err);
       }
     })();
+    refreshWishlist();
+  }, [refreshWishlist]);
 
-    // Cargar wishlist del usuario
-    (async () => {
-      try {
-        console.log("🔄 Cargando wishlist del usuario...");
-        const wishlist = await wishlistService.list();
-        const apiIds = wishlist
-          .map((item: any) => item.game_api_id)
-          .filter(Boolean);
-        setWishlistGameIds(apiIds);
-        console.log(`✅ Wishlist cargada: ${apiIds.length} juegos`, apiIds);
-      } catch (err) {
-        console.warn(
-          "⚠️ Error cargando wishlist (usuario no autenticado?):",
-          err,
-        );
-        setWishlistGameIds([]);
-      }
-    })();
-  }, []);
+  // Refrescar wishlist cada vez que la pestaña Main recupera foco
+  useFocusEffect(
+    useCallback(() => {
+      refreshWishlist();
+    }, [refreshWishlist]),
+  );
 
   return (
     <View className="flex-1">
