@@ -3,25 +3,24 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Heart } from "lucide-react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    PanResponder,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  PanResponder,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import GradientBackground from "../../components/GradientBackground";
 import CommentSection from "../../components/gameDetails/CommentSection";
 import GameVariantAccordion from "../../components/gameDetails/GameVariantAccordion";
 import MainHeader from "../../components/main/MainHeader";
 import {
-    CheapSharkDeal,
-    searchDealsBySteamAppID,
-    searchDealsByTitle,
-    searchDealsByTitleExact,
+  CheapSharkDeal,
+  searchDealsBySteamAppID,
+  searchDealsByTitle,
+  searchDealsByTitleExact,
 } from "../../services/cheapSharkService";
 import { getGameDetails, RawgGameFull } from "../../services/rawgService";
 import wishlistService from "../../services/wishlistService";
@@ -138,11 +137,9 @@ export default function ExploreScreen() {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Detect horizontal swipe right from left edge
         return gestureState.dx > 10 && Math.abs(gestureState.dy) < 80;
       },
       onPanResponderRelease: (_, gestureState) => {
-        // If swipe right more than 100px, navigate back
         if (gestureState.dx > 100) {
           router.push("/main");
         }
@@ -170,10 +167,8 @@ export default function ExploreScreen() {
         }
       }
 
-      // Try to resolve the correct game in CheapShark using Steam App ID first, then exact title, then fallback
       let results: CheapSharkDeal[] = [];
 
-      // Helper: extract Steam App ID from RAWG details stores (Steam URLs contain /app/<id>/)
       const extractSteamAppId = (details: any): string | null => {
         try {
           const stores = details?.stores || [];
@@ -182,7 +177,6 @@ export default function ExploreScreen() {
             const m = url.match(/store\.steampowered\.com\/app\/(\d+)/i);
             if (m && m[1]) return m[1];
           }
-          // Sometimes RAWG provides 'metacritic_url' or other links; attempt generic /app/<id>/ scan
           const text = JSON.stringify(details || {});
           const g = text.match(/store\.steampowered\.com\/app\/(\d+)/i);
           if (g && g[1]) return g[1];
@@ -204,24 +198,19 @@ export default function ExploreScreen() {
         } catch {}
       }
 
-      // Fallback to broad search
       if (!results || results.length === 0) {
         results = await searchDealsByTitle(gameTitle, 60);
       }
 
-      // If title contains a year like (2013), prefer deals that include that year in title
       const yearMatch = gameTitle.match(/\((\d{4})\)/);
       if (yearMatch) {
         const year = yearMatch[1];
         const filtered = results.filter((d) =>
           (d.title || "").includes(`(${year})`),
         );
-        if (filtered.length > 0) {
-          results = filtered;
-        }
+        if (filtered.length > 0) results = filtered;
       }
 
-      // Normalize title filtering: prefer deals whose title starts with the base title (without year)
       const baseTitle = gameTitle
         .replace(/\(\d{4}\)/, "")
         .trim()
@@ -232,14 +221,13 @@ export default function ExploreScreen() {
           .replace(/[^a-z0-9\s]/g, "")
           .replace(/\s+/g, " ")
           .trim();
+
       const preferred = results.filter((d) => {
         const dt = normalize(d.title || "");
         const bt = normalize(baseTitle);
         return dt.startsWith(bt);
       });
-      if (preferred.length > 0) {
-        results = preferred;
-      }
+      if (preferred.length > 0) results = preferred;
 
       setDeals(results);
     } catch (error) {
@@ -254,12 +242,9 @@ export default function ExploreScreen() {
       const title = deal.title || gameTitle;
       const storeId = deal.storeID;
 
-      // Skip deals without a store ID to avoid duplicating Steam as fallback
       if (!storeId) return acc;
 
-      if (!acc[title]) {
-        acc[title] = {};
-      }
+      if (!acc[title]) acc[title] = {};
 
       const currentPrice = parseFloat(
         deal.salePrice || deal.normalPrice || "999",
@@ -285,7 +270,6 @@ export default function ExploreScreen() {
       Object.keys(dealsByTitle[b]).length - Object.keys(dealsByTitle[a]).length,
   );
 
-  // Debug: log the stores and prices we have per title
   React.useEffect(() => {
     const debugPayload = sortedTitles.map((title) => ({
       title,
@@ -351,7 +335,6 @@ export default function ExploreScreen() {
 
   const primaryGenre = genres[0] || gameGenre;
 
-  // Verificar si el juego ya está en la wishlist
   const refreshWishlistState = useCallback(async () => {
     try {
       const wishlist = await wishlistService.list();
@@ -384,7 +367,6 @@ export default function ExploreScreen() {
       console.log("🎮 ========== WISHLIST PROCESS STARTED ==========");
       console.log("📋 Juego:", { gameTitle, gameId, primaryGenre });
 
-      // Create game payload
       const gamePayload = {
         name: gameTitle,
         api_id: gameId,
@@ -395,13 +377,11 @@ export default function ExploreScreen() {
 
       console.log("📝 Game Payload:", JSON.stringify(gamePayload, null, 2));
 
-      // URL de RAWG para este juego
       const gameUrl = `https://rawg.io/games/${gameId}`;
 
       if (isWishlisted) {
         let targetId = wishlistId;
         if (!targetId) {
-          // Fallback: buscar id en servidor por si no lo teníamos en memoria
           const wishlist = await wishlistService.list();
           const found = wishlist.find(
             (item: any) =>
@@ -423,7 +403,6 @@ export default function ExploreScreen() {
           await refreshWishlistState();
         }
       } else {
-        // Add to wishlist and update UI
         console.log("⏳ Llamando a wishlistService.addByApiId()...");
         const game = await wishlistService.addByApiId(gamePayload, gameUrl);
 
@@ -456,22 +435,33 @@ export default function ExploreScreen() {
 
   return (
     <GradientBackground>
-      <View {...panResponder.panHandlers} style={styles.gestureArea} />
-      <MainHeader />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.coverContainer}>
-          <Image
-            source={{ uri: gameImage }}
-            style={styles.cover}
-            resizeMode="cover"
-          />
+      {/* gestureArea */}
+      <View
+        {...panResponder.panHandlers}
+        className="absolute left-0 top-0 z-[5] h-full w-[50px]"
+      />
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="mt-[80px] mb-[15px]">
+          {/* Header encima de la imagen */}
+          <View className="absolute top-0 mt-[-30px] left-0 right-0 z-5">
+            <MainHeader />
+          </View>
+
+          <View className="items-center">
+            <Image
+              source={{ uri: gameImage }}
+              className="w-[164px] h-[231px] rounded-[4px]"
+              resizeMode="cover"
+            />
+          </View>
         </View>
 
         <TouchableOpacity
-          style={[
-            styles.wishlistButton,
-            isWishlisted ? styles.wishlistActive : null,
-          ]}
+          className={[
+            "w-[48px] h-[48px] rounded-full items-center justify-center self-center mt-[15px] mb-[10px] bg-black/60",
+            isWishlisted ? "bg-[#FF4D6D]/30" : "",
+          ].join(" ")}
           onPress={handleWishlistPress}
           disabled={isWishlistLoading}
           activeOpacity={0.8}
@@ -487,30 +477,45 @@ export default function ExploreScreen() {
           )}
         </TouchableOpacity>
 
-        <Text style={styles.title}>{gameTitle}</Text>
+        <Text className="text-[22px] font-semibold text-white text-center mb-[5px]">
+          {gameTitle}
+        </Text>
 
-        <View style={styles.ratingContainer}>
-          <Text style={styles.ratingText}>★ {detailedRating.toFixed(1)}</Text>
+        <View className="items-center mb-[15px]">
+          <Text className="text-[#FFD700] text-[14px] font-semibold">
+            ★ {detailedRating.toFixed(1)}
+          </Text>
         </View>
 
         {genres.length > 0 && (
-          <View style={styles.genresContainer}>
+          <View className="flex-row flex-wrap justify-center px-[20px] mb-[15px] gap-2">
             {genres.map((genre, index) => (
-              <View key={index} style={styles.genreBadge}>
-                <Text style={styles.genreText}>{genre}</Text>
+              <View
+                key={index}
+                className="rounded-[12px] px-[12px] py-[4px] border bg-[#4A9EFF]/20 border-[#4A9EFF]/40"
+              >
+                <Text className="text-[#4A9EFF] text-[11px] font-semibold">
+                  {genre}
+                </Text>
               </View>
             ))}
           </View>
         )}
 
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{getDescriptionText()}</Text>
+        <Text className="text-[11px] font-bold text-[#B0B0B0] text-left mb-[8px] px-[20px]">
+          Description
+        </Text>
+
+        <Text className="text-[11px] font-light text-[#E0E0E0] text-left leading-[15px] px-[20px] mb-[4px]">
+          {getDescriptionText()}
+        </Text>
+
         {showDescriptionButton && (
           <TouchableOpacity
             onPress={handleDescriptionToggle}
-            style={styles.seeMoreButton}
+            className="px-[20px] py-[4px] mb-[12px]"
           >
-            <Text style={styles.seeMoreText}>
+            <Text className="text-[11px] font-semibold text-[#4A9EFF] text-left">
               {descriptionLevel === 3 ? "Ver menos" : "Ver más"}
             </Text>
           </TouchableOpacity>
@@ -520,7 +525,7 @@ export default function ExploreScreen() {
           <ActivityIndicator
             size="large"
             color="#FFFFFF"
-            style={styles.loader}
+            style={{ marginVertical: 30 }}
           />
         ) : (
           <>
@@ -557,118 +562,8 @@ export default function ExploreScreen() {
           onLikeComment={handleLikeComment}
         />
 
-        <View style={styles.spacer} />
+        <View className="h-[40px]" />
       </ScrollView>
     </GradientBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  gestureArea: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: 50,
-    height: "100%",
-    zIndex: 5,
-  },
-  container: {
-    flex: 1,
-    paddingTop: 50,
-  },
-  coverContainer: {
-    alignItems: "center",
-    marginTop: 15,
-    marginBottom: 15,
-  },
-  cover: {
-    width: 164,
-    height: 231,
-    borderRadius: 4,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "600",
-    color: "#FFFFFF",
-    textAlign: "center",
-    marginBottom: 5,
-  },
-  ratingContainer: {
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  ratingText: {
-    color: "#FFD700",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  genresContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    marginBottom: 15,
-    gap: 8,
-  },
-  genreBadge: {
-    backgroundColor: "rgba(74, 158, 255, 0.2)",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: "rgba(74, 158, 255, 0.4)",
-  },
-  genreText: {
-    color: "#4A9EFF",
-    fontSize: 11,
-    fontWeight: "600",
-  },
-  sectionTitle: {
-    fontSize: 11,
-    fontWeight: "bold",
-    color: "#B0B0B0",
-    textAlign: "left",
-    marginBottom: 8,
-    paddingHorizontal: 20,
-  },
-  description: {
-    fontSize: 11,
-    fontWeight: "300",
-    color: "#E0E0E0",
-    textAlign: "left",
-    lineHeight: 15,
-    paddingHorizontal: 20,
-    marginBottom: 4,
-  },
-  seeMoreButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 4,
-    marginBottom: 12,
-  },
-  seeMoreText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#4A9EFF",
-    textAlign: "left",
-  },
-  loader: {
-    marginVertical: 30,
-  },
-  spacer: {
-    height: 40,
-  },
-  wishlistButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    marginTop: 15,
-    marginBottom: 10,
-  },
-  wishlistActive: {
-    backgroundColor: "rgba(255, 77, 109, 0.3)",
-  },
-});

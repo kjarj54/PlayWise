@@ -14,11 +14,11 @@ export default function MainHeader({ onSearchPress }: MainHeaderProps) {
 
   return (
     <>
-      <View className="absolute top-0 left-0 right-0 z-10 flex-row justify-between items-center px-[14] py-2 pt-[30] bg-transparent">
+      <View className="absolute top-0 left-0 right-0 z-10 flex-row justify-between items-center pl-[6] pr-[14] py-2 pt-[30] bg-transparent">
         <Image
           source={require("../../assets/images/logo.png")}
           resizeMode="contain"
-          className="w-[180] h-[54]"
+          className="w-[100] h-[70]"
         />
 
         <View className="flex-row items-center gap-[10]">

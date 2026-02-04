@@ -56,7 +56,7 @@ export default function LoginForm({
 
         {/* Link para recuperar contraseña */}
         <TouchableOpacity
-          className="self-end mt-1"
+          className="self-center mt-1"
           onPress={onNavigateToForgotPassword}
           disabled={loading}
         >
